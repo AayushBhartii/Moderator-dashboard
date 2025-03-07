@@ -1,14 +1,17 @@
 import React, { useState } from "react";
+import { FaUserCircle } from 'react-icons/fa';
 import LeftPanel from "../components/LeftPanel";
-import RightPanelPopup from "../components/RightPanelPopup";
 import UserStatsDashboard from "../components/UserStats/UserStatsDashboard";
 import TopBar from "../components/TopBar";
 
 export default function DeliveryMenu() {
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
 
   const handleUserSelect = (user) => {
-    setSelectedUser((prevSelected) => (prevSelected?.id === user.id ? null : user));
+    setSelectedUser(user);
+    setActiveTab("details");
   };
 
   const users = [
@@ -157,12 +160,23 @@ export default function DeliveryMenu() {
     <div className="flex flex-col h-screen">
       <TopBar title="User Management Dashboard" />
       <div className="flex flex-1 flex-col lg:flex-row">
-        
-        
+        {/* Left Panel */}
+        <div className="flex-shrink-0 lg:w-1/4 w-full">
+          <LeftPanel users={users} onUserSelect={handleUserSelect}>
+            <FaUserCircle className="text-gray-500 w-8 h-8" />
+          </LeftPanel>
+        </div>
 
         {/* Main Dashboard */}
         <div className="relative flex-1 flex flex-col space-y-4 p-4 bg-gray-100">
-          {!selectedUser ? (
+          <button 
+            className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+            onClick={() => setShowDashboard(!showDashboard)}
+          >
+            Overview
+          </button>
+
+          {showDashboard && !selectedUser ? (
             <UserStatsDashboard
               totalUsers={totalUsers}
               activeUsers={activeUsers}
@@ -176,20 +190,94 @@ export default function DeliveryMenu() {
               loyalUserData={loyalUserData}
             />
           ) : (
-            <RightPanelPopup
-              selectedUser={selectedUser}
-              onClose={() => setSelectedUser(null)}
-              className="absolute inset-0 bg-white shadow-xl z-50"
-            />
+            selectedUser && (
+              <div className="border p-4 bg-white rounded shadow">
+                <div className="flex space-x-4 mb-4">
+                  <button 
+                    className={`px-4 py-2 rounded ${activeTab === "details" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                    onClick={() => setActiveTab("details")}
+                  >
+                    User Detail
+                  </button>
+                  <button 
+                    className={`px-4 py-2 rounded ${activeTab === "orders" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                    onClick={() => setActiveTab("orders")}
+                  >
+                    Order History
+                  </button>
+                  <button 
+                    className={`px-4 py-2 rounded ${activeTab === "comments" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                    onClick={() => setActiveTab("comments")}
+                  >
+                    Comments
+                  </button>
+                  <button 
+                    className={`px-4 py-2 rounded ${activeTab === "reviews" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                    onClick={() => setActiveTab("reviews")}
+                  >
+                    Reviews
+                  </button>
+                </div>
+
+                {activeTab === "details" && (
+                  <div>
+                    <h2 className="text-lg font-bold">User Detail</h2>
+                    <p><strong>Name:</strong> {selectedUser.name}</p>
+                    <p><strong>Username:</strong> {selectedUser.username}</p>
+                    <p><strong>Email:</strong> {selectedUser.email}</p>
+                    <p><strong>Banned:</strong> {selectedUser.banned ? "Yes" : "No"}</p>
+                    <p><strong>Flagged:</strong> {selectedUser.flagged ? "Yes" : "No"}</p>
+                  </div>
+                )}
+
+                {activeTab === "orders" && (
+                  <div>
+                    <h2 className="text-lg font-bold">Order History</h2>
+                    <ul>
+                      {selectedUser.orders.length > 0 ? (
+                        selectedUser.orders.map((order, index) => (
+                          <li key={index}>{order.restaurantName} on {order.date}</li>
+                        ))
+                      ) : (
+                        <li>No orders found.</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {activeTab === "comments" && (
+                  <div>
+                    <h2 className="text-lg font-bold">Comments</h2>
+                    <ul>
+                      {selectedUser.comments.length > 0 ? (
+                        selectedUser.comments.map((comment, index) => (
+                          <li key={index}><strong>{comment.restaurantName}:</strong> {comment.text}</li>
+                        ))
+                      ) : (
+                        <li>No comments found.</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {activeTab === "reviews" && (
+                  <div>
+                    <h2 className="text-lg font-bold">Reviews</h2>
+                    <p>No reviews available.</p>
+                  </div>
+                )}
+
+                <button 
+                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-200"
+                  onClick={() => setSelectedUser(null)}
+                >
+                  Close
+                </button>
+              </div>
+            )
           )}
         </div>
-        
       </div>
-
-      {/* Bottom Panel */}
-      <div className="flex-shrink-0 lg:w- w-full">
-          <LeftPanel users={users} onUserSelect={handleUserSelect} />
-        </div>
     </div>
   );
 }
