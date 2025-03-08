@@ -17,6 +17,7 @@ const TopBar = ({ title, onSearch }) => {
           onChange={(e) => onSearch(e.target.value)}
           className="w-full border border-gray-300 pl-10 pr-3 py-2 rounded-md focus:outline-none focus:border-blue-500"
         />
+        
         <svg
           className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
           fill="none"
