@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUserCircle } from 'react-icons/fa';
 import LeftPanel from "../components/LeftPanel";
-import UserStatsDashboard from "../components/UserStats/UserStatsDashboard";
+import UserStatsDashboard from "../components/UserStats/userStatsDashboard";
 import TopBar from "../components/TopBar";
 
 export default function DeliveryMenu() {
