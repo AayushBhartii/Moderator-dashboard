@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { FaUserCircle, FaBan, FaFlag, FaTrash } from 'react-icons/fa';
+import { FaUserCircle, FaBan, FaFlag, FaTrash, FaHistory, FaComments, FaStar, FaUserCog, FaCalendarAlt, FaClock } from 'react-icons/fa';
 import LeftPanel from "../components/LeftPanel";
 import UserStatsDashboard from "../components/userStats/UserStatsDashboard";
 import TopBar from "../components/TopBar";
+
+/*
+Color Scheme:
+Primary: indigo-600 (#4F46E5) - Main actions, headers
+Secondary: purple-500 (#9061F9) - Secondary actions
+Accent: emerald-500 (#10B981) - Success states
+Warning: amber-500 (#F59E0B) - Warning states
+Danger: rose-500 (#F43F5E) - Destructive actions
+Background: slate-50 (#F8FAFC) - Main background
+Card Background: white
+Text: slate-700 (#334155) - Main text
+Text Light: slate-400 (#94A3B8) - Secondary text
+*/
 
 export default function DeliveryMenu() {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -191,162 +204,231 @@ export default function DeliveryMenu() {
     { month: "Sep", growth: 100 },
   ];
 
+  const dashboardProps = {
+    totalUsers,
+    activeUsers,
+    bannedUsers,
+    flaggedUsers,
+    inactiveUsers,
+    uniqueUsers,
+    bounceRate,
+    turnaroundRatio,
+    pieChartData,
+    loyalUserData
+  };
+
   return (
-    <div className="flex flex-col h-screen">
-       <div className="w-full bg-white shadow-md border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-4">
-      {/* Title on the Left */}
-      <h1 className="text-2xl font-bold text-gray-800 whitespace-nowrap">
-      User Management Dashboard
-      </h1>
-      <button 
-            className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
-            onClick={() => setShowDashboard(!showDashboard)}
-          >
-            Overview
-          </button>
+    <div className="flex flex-col h-screen bg-slate-50">
+      {/* Header Section */}
+      <div className="w-full bg-white shadow-lg border-b border-slate-200 px-6 py-4 flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-slate-700 whitespace-nowrap flex items-center">
+          <FaUserCog className="mr-2 text-indigo-600" />
+          User Management Dashboard
+        </h1>
+        <button 
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200 flex items-center shadow-md"
+          onClick={() => setShowDashboard(!showDashboard)}
+        >
+          <FaHistory className="mr-2" />
+          {showDashboard ? 'Hide Overview' : 'Show Overview'}
+        </button>
       </div>
+
       <div className="flex flex-1 flex-col lg:flex-row">
         {/* Left Panel */}
-        <div className="flex-shrink-0 lg:w-1/4 w-full">
-        
+        <div className="flex-shrink-0 lg:w-1/4 w-full bg-white border-r border-slate-200">
           <LeftPanel users={users} onUserSelect={handleUserSelect}>
-            <FaUserCircle className="text-gray-500 w-8 h-8" />
+            <FaUserCircle className="text-indigo-600 w-8 h-8" />
           </LeftPanel>
-          
         </div>
-      
-        {/* Main Dashboard */}
-        <div className="relative flex-1 flex flex-col space-y-4 p-4 bg-gray-100">
-        
-          
 
-          <div className="space-y-4">
-            {/* Overview Section - Shows at the top when button is clicked */}
+        {/* Main Dashboard */}
+        <div className="relative flex-1 flex flex-col space-y-4 p-6 bg-slate-50">
+          <div className="space-y-6">
+            {/* Overview Section */}
             {showDashboard && (
-              <div className="mb-4">
-                <UserStatsDashboard
-                  totalUsers={totalUsers}
-                  activeUsers={activeUsers}
-                  bannedUsers={bannedUsers}
-                  flaggedUsers={flaggedUsers}
-                  inactiveUsers={inactiveUsers}
-                  uniqueUsers={uniqueUsers}
-                  bounceRate={bounceRate}
-                  turnaroundRatio={turnaroundRatio}
-                  pieChartData={pieChartData}
-                  loyalUserData={loyalUserData}
-                />
+              <div className="transform transition-all duration-200 ease-in-out">
+                <UserStatsDashboard {...dashboardProps} />
               </div>
             )}
 
             {/* User Information Section */}
             {selectedUser && (
-              <div className="border p-4 bg-white rounded shadow">
-                <div className="flex items-center mb-4">
-                  <FaUserCircle className="text-gray-500 w-12 h-12" />
-                  <h2 className="text-lg font-bold ml-2">{selectedUser.name}</h2>
+              <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+                {/* User Header */}
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-500 p-6 text-white">
+                  <div className="flex items-center">
+                    <FaUserCircle className="w-16 h-16" />
+                    <div className="ml-4">
+                      <h2 className="text-2xl font-bold">{selectedUser.name}</h2>
+                      <p className="text-indigo-100">{selectedUser.email}</p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex space-x-4 mb-4">
-                  <button 
-                    className={`px-4 py-2 rounded transition duration-200 ${activeTab === "details" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
-                    onClick={() => setActiveTab("details")}
-                  >
-                    User Detail
-                  </button>
-                  <button 
-                    className={`px-4 py-2 rounded transition duration-200 ${activeTab === "orders" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
-                    onClick={() => setActiveTab("orders")}
-                  >
-                    Order History
-                  </button>
-                  <button 
-                    className={`px-4 py-2 rounded transition duration-200 ${activeTab === "comments" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
-                    onClick={() => setActiveTab("comments")}
-                  >
-                    Comments
-                  </button>
-                  <button 
-                    className={`px-4 py-2 rounded transition duration-200 ${activeTab === "reviews" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
-                    onClick={() => setActiveTab("reviews")}
-                  >
-                    Reviews
-                  </button>
+                <div className="flex space-x-1 bg-slate-50 p-4 border-b border-slate-200">
+                  {[
+                    { id: "details", icon: FaUserCog, label: "User Detail" },
+                    { id: "orders", icon: FaHistory, label: "Order History" },
+                    { id: "comments", icon: FaComments, label: "Comments" },
+                    { id: "reviews", icon: FaStar, label: "Reviews" }
+                  ].map(tab => (
+                    <button 
+                      key={tab.id}
+                      className={`flex-1 flex items-center justify-center px-4 py-3 rounded-lg transition duration-200 ${
+                        activeTab === tab.id 
+                          ? "bg-indigo-600 text-white shadow-md" 
+                          : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                      }`}
+                      onClick={() => setActiveTab(tab.id)}
+                    >
+                      <tab.icon className="mr-2" />
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Tab Content */}
-                {activeTab === "details" && (
-                  <div className="border-t border-gray-300 pt-4">
-                    <h2 className="text-lg font-bold">User Detail</h2>
-                    <p><strong>Username:</strong> {selectedUser.username}</p>
-                    <p><strong>Email:</strong> {selectedUser.email}</p>
-                    <p><strong>Banned:</strong> {selectedUser.banned ? "Yes" : "No"}</p>
-                    <p><strong>Flagged:</strong> {selectedUser.flagged ? "Yes" : "No"}</p>
-                    {/* User Actions */}
-                    <h2 className="text-lg font-bold mt-4">Action Buttons</h2>
-                    <div className="flex space-x-4 mb-4">
-                      <button 
-                        className={`px-4 py-2 rounded ${selectedUser.banned ? "bg-red-500" : "bg-yellow-500"} text-white flex items-center`}
-                        onClick={() => toggleBanUser(selectedUser.id)}
-                      >
-                        <FaBan className="mr-2" />
-                        {selectedUser.banned ? "Unban" : "Ban"}
-                      </button>
-                      <button 
-                        className={`px-4 py-2 rounded ${selectedUser.flagged ? "bg-red-500" : "bg-yellow-500"} text-white flex items-center`}
-                        onClick={() => toggleFlagUser(selectedUser.id)}
-                      >
-                        <FaFlag className="mr-2" />
-                        {selectedUser.flagged ? "Unflag" : "Flag"}
-                      </button>
-                      <button 
-                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-200 flex items-center"
-                        onClick={() => deleteUser(selectedUser.id)}
-                      >
-                        <FaTrash className="mr-2" />
-                        Delete
-                      </button>
+                <div className="p-6">
+                  {activeTab === "details" && (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-slate-50 p-4 rounded-lg">
+                          <h3 className="text-lg font-semibold mb-4 text-slate-700">Basic Information</h3>
+                          <div className="space-y-3">
+                            <p className="flex items-center">
+                              <span className="font-medium w-24 text-slate-600">Username:</span>
+                              <span className="text-slate-700">{selectedUser.username}</span>
+                            </p>
+                            <p className="flex items-center">
+                              <span className="font-medium w-24 text-slate-600">Email:</span>
+                              <span className="text-slate-700">{selectedUser.email}</span>
+                            </p>
+                            <p className="flex items-center">
+                              <span className="font-medium w-24 text-slate-600">Status:</span>
+                              <span className={`px-2 py-1 rounded-full text-sm ${
+                                selectedUser.banned 
+                                  ? "bg-rose-100 text-rose-600" 
+                                  : "bg-emerald-100 text-emerald-600"
+                              }`}>
+                                {selectedUser.banned ? "Banned" : "Active"}
+                              </span>
+                            </p>
+                            <p className="flex items-center">
+                              <span className="font-medium w-24 text-slate-600">Flagged:</span>
+                              <span className={`px-2 py-1 rounded-full text-sm ${
+                                selectedUser.flagged 
+                                  ? "bg-amber-100 text-amber-600" 
+                                  : "bg-emerald-100 text-emerald-600"
+                              }`}>
+                                {selectedUser.flagged ? "Flagged" : "Clean"}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-50 p-4 rounded-lg">
+                          <h3 className="text-lg font-semibold mb-4 text-slate-700">Actions</h3>
+                          <div className="flex flex-col space-y-3">
+                            <button 
+                              className={`w-full px-4 py-3 rounded-lg flex items-center justify-center transition duration-200 ${
+                                selectedUser.banned 
+                                  ? "bg-rose-500 hover:bg-rose-600" 
+                                  : "bg-amber-500 hover:bg-amber-600"
+                              } text-white shadow-md`}
+                              onClick={() => toggleBanUser(selectedUser.id)}
+                            >
+                              <FaBan className="mr-2" />
+                              {selectedUser.banned ? "Unban User" : "Ban User"}
+                            </button>
+                            <button 
+                              className={`w-full px-4 py-3 rounded-lg flex items-center justify-center transition duration-200 ${
+                                selectedUser.flagged 
+                                  ? "bg-rose-500 hover:bg-rose-600" 
+                                  : "bg-amber-500 hover:bg-amber-600"
+                              } text-white shadow-md`}
+                              onClick={() => toggleFlagUser(selectedUser.id)}
+                            >
+                              <FaFlag className="mr-2" />
+                              {selectedUser.flagged ? "Remove Flag" : "Flag User"}
+                            </button>
+                            <button 
+                              className="w-full px-4 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-lg flex items-center justify-center transition duration-200 shadow-md"
+                              onClick={() => deleteUser(selectedUser.id)}
+                            >
+                              <FaTrash className="mr-2" />
+                              Delete User
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {activeTab === "orders" && (
-                  <div className="border-t border-gray-300 pt-4">
-                    <h2 className="text-lg font-bold">Order History</h2>
-                    <ul className="list-disc pl-5">
+                  {activeTab === "orders" && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold mb-4 text-slate-700">Order History</h3>
                       {selectedUser.orders.length > 0 ? (
-                        selectedUser.orders.map((order, index) => (
-                          <li key={index}>{order.restaurantName} on {order.date}</li>
-                        ))
+                        <div className="grid gap-4">
+                          {selectedUser.orders.map((order, index) => (
+                            <div key={index} className="bg-slate-50 p-4 rounded-lg flex items-center justify-between">
+                              <div className="flex items-center">
+                                <FaCalendarAlt className="text-indigo-600 mr-3" />
+                                <div>
+                                  <p className="font-medium text-slate-700">{order.restaurantName}</p>
+                                  <p className="text-sm text-slate-500">{order.date}</p>
+                                </div>
+                              </div>
+                              <span className="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-sm">
+                                Completed
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       ) : (
-                        <li>No orders found.</li>
+                        <div className="text-center py-8 bg-slate-50 rounded-lg">
+                          <FaHistory className="mx-auto text-slate-400 text-4xl mb-2" />
+                          <p className="text-slate-500">No orders found</p>
+                        </div>
                       )}
-                    </ul>
-                  </div>
-                )}
+                    </div>
+                  )}
 
-                {activeTab === "comments" && (
-                  <div className="border-t border-gray-300 pt-4">
-                    <h2 className="text-lg font-bold">Comments</h2>
-                    <ul className="list-disc pl-5">
+                  {activeTab === "comments" && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold mb-4 text-slate-700">User Comments</h3>
                       {selectedUser.comments.length > 0 ? (
-                        selectedUser.comments.map((comment, index) => (
-                          <li key={index}><strong>{comment.restaurantName}:</strong> {comment.text}</li>
-                        ))
+                        <div className="grid gap-4">
+                          {selectedUser.comments.map((comment, index) => (
+                            <div key={index} className="bg-slate-50 p-4 rounded-lg">
+                              <div className="flex items-center mb-2">
+                                <FaComments className="text-indigo-600 mr-2" />
+                                <span className="font-medium text-slate-700">{comment.restaurantName}</span>
+                              </div>
+                              <p className="text-slate-600 pl-7">{comment.text}</p>
+                            </div>
+                          ))}
+                        </div>
                       ) : (
-                        <li>No comments found.</li>
+                        <div className="text-center py-8 bg-slate-50 rounded-lg">
+                          <FaComments className="mx-auto text-slate-400 text-4xl mb-2" />
+                          <p className="text-slate-500">No comments found</p>
+                        </div>
                       )}
-                    </ul>
-                  </div>
-                )}
+                    </div>
+                  )}
 
-                {activeTab === "reviews" && (
-                  <div className="border-t border-gray-300 pt-4">
-                    <h2 className="text-lg font-bold">Reviews</h2>
-                    <p>No reviews available.</p>
-                  </div>
-                )}
+                  {activeTab === "reviews" && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold mb-4 text-slate-700">User Reviews</h3>
+                      <div className="text-center py-8 bg-slate-50 rounded-lg">
+                        <FaStar className="mx-auto text-slate-400 text-4xl mb-2" />
+                        <p className="text-slate-500">No reviews available</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
