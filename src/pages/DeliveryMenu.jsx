@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaUserCircle, FaBan, FaFlag, FaTrash, FaHistory, FaComments, FaStar, FaUserCog, FaCalendarAlt, FaClock } from 'react-icons/fa';
+import { FaUserCircle, FaBan, FaFlag, FaTrash, FaHistory, FaComments, FaStar, FaUserCog, FaCalendarAlt,FaTenge,FaHandsHelping, FaClock } from 'react-icons/fa';
 import LeftPanel from "../components/LeftPanel";
 import UserStatsDashboard from "../components/userStats/UserStatsDashboard";
 import TopBar from "../components/TopBar";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import SupportTickets from "./SupportTickets";
+import PromotionsManager from "./PromotionsManager";
 
 /*
 Color Scheme:
@@ -17,24 +20,38 @@ Text: slate-700 (#334155) - Main text
 Text Light: slate-400 (#94A3B8) - Secondary text
 */
 
+
 export default function DeliveryMenu() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
   const [searchTerm, setSearchTerm] = useState("");
+  const [customer, setCustomer] = useState(null);
   const [users, setUsers] = useState([
     {
       id: 1,
       name: "John Doe",
       username: "johndoe",
       email: "john@example.com",
+      phone: "+1 234-567-8900",
+      address: "123 Main St, City, Country",
       avatar: "https://via.placeholder.com/50",
       banned: false,
       flagged: false,
+      accountStatus: "Active",
+      loyaltyPoints: 150,
+      promotionsSent: [
+        { id: 1, name: "Welcome Bonus", date: "2024-01-15" },
+        { id: 2, name: "Birthday Special", date: "2024-02-01" }
+      ],
+      supportTickets: [
+        { id: 1, issue: "Order Delay", status: "Resolved", date: "2024-01-20" },
+        { id: 2, issue: "Payment Issue", status: "Pending", date: "2024-02-05" }
+      ],
       orders: [
-        { restaurantName: "Krupa Mess", date: "2023-12-01" },
-        { restaurantName: "Spicy Bites", date: "2023-12-15" },
-        { restaurantName: "The Food Hub", date: "2023-12-20" },
+        { restaurantName: "Krupa Mess", date: "2023-12-01", amount: 45.99 },
+        { restaurantName: "Spicy Bites", date: "2023-12-15", amount: 32.50 },
+        { restaurantName: "The Food Hub", date: "2023-12-20", amount: 28.75 },
       ],
       comments: [
         {
@@ -42,18 +59,32 @@ export default function DeliveryMenu() {
           text: "Great food but terrible service!",
         },
       ],
+      orderHistory: [
+        { orderId: "ORD001", date: "2023-12-01", amount: 45.99 },
+        { orderId: "ORD002", date: "2023-12-15", amount: 32.50 },
+        { orderId: "ORD003", date: "2023-12-20", amount: 28.75 },
+      ],
+      ordersLastYear: 12,
+      ordersThisYear: 8,
+      totalSpending: 450.75,
     },
     {
       id: 2,
       name: "Jane Smith",
       username: "janesmith",
       email: "jane@example.com",
+      phone: "+1 234-567-8901",
+      address: "456 Elm St, City, Country",
       avatar: "https://via.placeholder.com/50",
       banned: false,
       flagged: true,
+      accountStatus: "Active",
+      loyaltyPoints: 100,
+      promotionsSent: [],
+      supportTickets: [],
       orders: [
-        { restaurantName: "Pasta Point", date: "2023-11-25" },
-        { restaurantName: "The Curry House", date: "2023-12-05" },
+        { restaurantName: "Pasta Point", date: "2023-11-25", amount: 25.00 },
+        { restaurantName: "The Curry House", date: "2023-12-05", amount: 30.00 },
       ],
       comments: [
         {
@@ -61,17 +92,30 @@ export default function DeliveryMenu() {
           text: "Loved the pasta! Will visit again.",
         },
       ],
+      orderHistory: [
+        { orderId: "ORD004", date: "2023-11-25", amount: 25.00 },
+        { orderId: "ORD005", date: "2023-12-05", amount: 30.00 },
+      ],
+      ordersLastYear: 2,
+      ordersThisYear: 2,
+      totalSpending: 55.00,
     },
     {
       id: 3,
       name: "Michael Brown",
       username: "mikebrown",
       email: "michael@example.com",
+      phone: "+1 234-567-8902",
+      address: "789 Oak St, City, Country",
       avatar: "https://via.placeholder.com/50",
       banned: true,
       flagged: false,
+      accountStatus: "Inactive",
+      loyaltyPoints: 0,
+      promotionsSent: [],
+      supportTickets: [],
       orders: [
-        { restaurantName: "Burger Haven", date: "2023-12-10" },
+        { restaurantName: "Burger Haven", date: "2023-12-10", amount: 35.00 },
       ],
       comments: [
         {
@@ -79,18 +123,30 @@ export default function DeliveryMenu() {
           text: "Worst burger I've ever had. Avoid!",
         },
       ],
+      orderHistory: [
+        { orderId: "ORD006", date: "2023-12-10", amount: 35.00 },
+      ],
+      ordersLastYear: 1,
+      ordersThisYear: 0,
+      totalSpending: 35.00,
     },
     {
       id: 4,
       name: "Emily Davis",
       username: "emilydavis",
       email: "emily@example.com",
+      phone: "+1 234-567-8903",
+      address: "101 Pine St, City, Country",
       avatar: "https://via.placeholder.com/50",
       banned: false,
       flagged: true,
+      accountStatus: "Active",
+      loyaltyPoints: 50,
+      promotionsSent: [],
+      supportTickets: [],
       orders: [
-        { restaurantName: "Green Leaf Cafe", date: "2023-11-30" },
-        { restaurantName: "Krupa Mess", date: "2023-12-12" },
+        { restaurantName: "Green Leaf Cafe", date: "2023-11-30", amount: 20.00 },
+        { restaurantName: "Krupa Mess", date: "2023-12-12", amount: 40.00 },
       ],
       comments: [
         {
@@ -98,18 +154,31 @@ export default function DeliveryMenu() {
           text: "Beautiful ambiance and great salads!",
         },
       ],
+      orderHistory: [
+        { orderId: "ORD007", date: "2023-11-30", amount: 20.00 },
+        { orderId: "ORD008", date: "2023-12-12", amount: 40.00 },
+      ],
+      ordersLastYear: 1,
+      ordersThisYear: 2,
+      totalSpending: 60.00,
     },
     {
       id: 5,
       name: "Sophia Wilson",
       username: "sophiawilson",
       email: "sophia@example.com",
+      phone: "+1 234-567-8904",
+      address: "202 Maple St, City, Country",
       avatar: "https://via.placeholder.com/50",
       banned: true,
       flagged: true,
+      accountStatus: "Inactive",
+      loyaltyPoints: 0,
+      promotionsSent: [],
+      supportTickets: [],
       orders: [
-        { restaurantName: "Pizza Palace", date: "2023-12-01" },
-        { restaurantName: "The Grill Station", date: "2023-12-16" },
+        { restaurantName: "Pizza Palace", date: "2023-12-01", amount: 30.00 },
+        { restaurantName: "The Grill Station", date: "2023-12-16", amount: 25.00 },
       ],
       comments: [
         {
@@ -117,17 +186,30 @@ export default function DeliveryMenu() {
           text: "Pizza was too oily, but the staff was kind.",
         },
       ],
+      orderHistory: [
+        { orderId: "ORD009", date: "2023-12-01", amount: 30.00 },
+        { orderId: "ORD010", date: "2023-12-16", amount: 25.00 },
+      ],
+      ordersLastYear: 1,
+      ordersThisYear: 1,
+      totalSpending: 55.00,
     },
     {
       id: 6,
       name: "James Taylor",
       username: "jamestaylor",
       email: "james@example.com",
+      phone: "+1 234-567-8905",
+      address: "303 Cedar St, City, Country",
       avatar: "https://via.placeholder.com/50",
       banned: false,
       flagged: false,
+      accountStatus: "Active",
+      loyaltyPoints: 75,
+      promotionsSent: [],
+      supportTickets: [],
       orders: [
-        { restaurantName: "Fusion Feast", date: "2023-12-18" },
+        { restaurantName: "Fusion Feast", date: "2023-12-18", amount: 50.00 },
       ],
       comments: [
         {
@@ -135,6 +217,12 @@ export default function DeliveryMenu() {
           text: "Creative dishes, but portions are small.",
         },
       ],
+      orderHistory: [
+        { orderId: "ORD011", date: "2023-12-18", amount: 50.00 },
+      ],
+      ordersLastYear: 1,
+      ordersThisYear: 1,
+      totalSpending: 50.00,
     },
   ]);
 
@@ -217,6 +305,46 @@ export default function DeliveryMenu() {
     loyalUserData
   };
 
+  // Function to handle account status changes
+  const handleActive = (status) => {
+    if (selectedUser) {
+      setSelectedUser(prevUser => ({
+        ...prevUser,
+        accountStatus: status === "active" ? "Active" : "Inactive"
+      }));
+    }
+  };
+
+  // Calculate spending data for the selected user
+  const calculateSpendingData = (user) => {
+    if (!user || !user.orderHistory) return [];
+    
+    const currentYear = new Date().getFullYear();
+    const previousYear = currentYear - 1;
+
+    return [
+      {
+        year: "Previous Year",
+        totalSpent: user.orderHistory
+          .filter((order) => new Date(order.date).getFullYear() === previousYear)
+          .reduce((sum, order) => sum + (order.amount || 0), 0),
+      },
+      {
+        year: "This Year",
+        totalSpent: user.orderHistory
+          .filter((order) => new Date(order.date).getFullYear() === currentYear)
+          .reduce((sum, order) => sum + (order.amount || 0), 0),
+      },
+    ];
+  };
+
+  // Update customer when selected user changes
+  useEffect(() => {
+    if (selectedUser) {
+      setCustomer(selectedUser);
+    }
+  }, [selectedUser]);
+
   return (
     <div className="flex flex-col h-screen bg-slate-50">
       {/* Header Section */}
@@ -272,6 +400,8 @@ export default function DeliveryMenu() {
                     { id: "details", icon: FaUserCog, label: "User Detail" },
                     { id: "orders", icon: FaHistory, label: "Order History" },
                     { id: "comments", icon: FaComments, label: "Comments" },
+                    { id: "support", icon: FaHandsHelping, label: "Support" },
+                    { id: "engagement", icon: FaTenge, label: "Engagement" },
                     { id: "reviews", icon: FaStar, label: "Reviews" }
                   ].map(tab => (
                     <button 
@@ -306,6 +436,14 @@ export default function DeliveryMenu() {
                               <span className="text-slate-700">{selectedUser.email}</span>
                             </p>
                             <p className="flex items-center">
+                              <span className="font-medium w-24 text-slate-600">Phone:</span>
+                              <span className="text-slate-700">{selectedUser.phone || 'N/A'}</span>
+                            </p>
+                            <p className="flex items-center">
+                              <span className="font-medium w-24 text-slate-600">Address:</span>
+                              <span className="text-slate-700">{selectedUser.address || 'N/A'}</span>
+                            </p>
+                            <p className="flex items-center">
                               <span className="font-medium w-24 text-slate-600">Status:</span>
                               <span className={`px-2 py-1 rounded-full text-sm ${
                                 selectedUser.banned 
@@ -316,16 +454,11 @@ export default function DeliveryMenu() {
                               </span>
                             </p>
                             <p className="flex items-center">
-                              <span className="font-medium w-24 text-slate-600">Flagged:</span>
-                              <span className={`px-2 py-1 rounded-full text-sm ${
-                                selectedUser.flagged 
-                                  ? "bg-amber-100 text-amber-600" 
-                                  : "bg-emerald-100 text-emerald-600"
-                              }`}>
-                                {selectedUser.flagged ? "Flagged" : "Clean"}
-                              </span>
+                              <span className="font-medium w-24 text-slate-600">Loyalty:</span>
+                              <span className="text-slate-700">{selectedUser.loyaltyPoints || 0} points</span>
                             </p>
                           </div>
+                          
                         </div>
 
                         <div className="bg-slate-50 p-4 rounded-lg">
@@ -368,8 +501,22 @@ export default function DeliveryMenu() {
 
                   {activeTab === "orders" && (
                     <div className="space-y-4">
+                      {/* Bar Chart Section */}
+                      <div className="h-64 mb-8">
+                        <h2 className="text-lg font-semibold mb-4">Order History - Spending Overview</h2>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={calculateSpendingData(selectedUser)}>
+                            <XAxis dataKey="year" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="totalSpent" fill="#8884d8" name="Total Spent" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+
                       <h3 className="text-lg font-semibold mb-4 text-slate-700">Order History</h3>
-                      {selectedUser.orders.length > 0 ? (
+                      {selectedUser.orders && selectedUser.orders.length > 0 ? (
                         <div className="grid gap-4">
                           {selectedUser.orders.map((order, index) => (
                             <div key={index} className="bg-slate-50 p-4 rounded-lg flex items-center justify-between">
@@ -381,7 +528,7 @@ export default function DeliveryMenu() {
                                 </div>
                               </div>
                               <span className="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-sm">
-                                Completed
+                                {order.amount ? `$${order.amount}` : 'Completed'}
                               </span>
                             </div>
                           ))}
@@ -428,6 +575,32 @@ export default function DeliveryMenu() {
                       </div>
                     </div>
                   )}
+                  {activeTab === "engagement" && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold mb-4 text-slate-700">Customer Engagement</h3>
+                      <div className="bg-slate-50 p-4 rounded-lg">
+                        <p className="mb-4">
+                          <span className="font-semibold">Loyalty Points:</span> {selectedUser.loyaltyPoints || 0}
+                        </p>
+                        {selectedUser.promotionsSent && (
+                          <PromotionsManager promotionsSent={selectedUser.promotionsSent} />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                   {activeTab === "support" && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold mb-4 text-slate-700">Customer Support Tickets</h3>
+                      {selectedUser.supportTickets ? (
+                        <SupportTickets supportTickets={selectedUser.supportTickets} />
+                      ) : (
+                        <div className="text-center py-8 bg-slate-50 rounded-lg">
+                          <FaComments className="mx-auto text-slate-400 text-4xl mb-2" />
+                          <p className="text-slate-500">No support tickets found</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -435,5 +608,6 @@ export default function DeliveryMenu() {
         </div>
       </div>
     </div>
+    
   );
 }
